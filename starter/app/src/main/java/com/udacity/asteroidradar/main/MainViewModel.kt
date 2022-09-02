@@ -49,8 +49,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 _pictureOfDay.value = picOfDay
             } catch (e: Exception) {
-                // TODO: Add error handling
                 Timber.e(e)
+
+                _pictureOfDay.value = PictureOfDay(
+                    mediaType = "",
+                    title = "No Image",
+                    url = ""
+                )
             }
         }
     }

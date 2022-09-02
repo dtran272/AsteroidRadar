@@ -32,12 +32,16 @@ class AsteroidsRepository(private val database: AsteroidDatabase) {
      */
     suspend fun refreshFeed() {
         withContext(Dispatchers.IO) {
-            Timber.i("Fetch asteroid feed from network")
-            val feedResult = NasaApi.neoRetrofitService.getAsteroidsFeed()
-            val asteroidsFeed = parseAsteroidsJsonResult(JSONObject(feedResult))
+            try {
+                Timber.i("Fetch asteroid feed from network")
+                val feedResult = NasaApi.neoRetrofitService.getAsteroidsFeed()
+                val asteroidsFeed = parseAsteroidsJsonResult(JSONObject(feedResult))
 
-            Timber.i("Save feed to local cache")
-            database.asteroidDao.insertAll(*asteroidsFeed.asDatabaseModel())
+                Timber.i("Save feed to local cache")
+                database.asteroidDao.insertAll(*asteroidsFeed.asDatabaseModel())
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
         }
     }
 }

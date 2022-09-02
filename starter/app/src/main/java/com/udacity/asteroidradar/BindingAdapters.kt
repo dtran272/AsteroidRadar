@@ -10,15 +10,15 @@ import com.udacity.asteroidradar.main.AsteroidAdapter
 
 @BindingAdapter("pictureOfTheDay")
 fun bindPictureOfTheDay(imageView: ImageView, imageUrl: String?) {
-    imageUrl?.let {
-        val imageUri = imageUrl.toUri().buildUpon().scheme("https").build()
-
-        Picasso.get()
-            .load(imageUri)
-            .placeholder(R.drawable.loading_animation)
-            .error(R.drawable.ic_broken_image)
-            .into(imageView)
+    val imageUri = imageUrl?.let {
+        imageUrl.toUri().buildUpon().scheme("https").build()
     }
+
+    Picasso.get()
+        .load(imageUri)
+        .placeholder(R.drawable.loading_animation)
+        .error(R.drawable.ic_broken_image)
+        .into(imageView)
 }
 
 @BindingAdapter("listData")
