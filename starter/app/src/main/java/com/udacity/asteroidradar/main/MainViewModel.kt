@@ -3,11 +3,23 @@ package com.udacity.asteroidradar.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.PictureOfDay
+import com.udacity.asteroidradar.api.NasaApi
+import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import timber.log.Timber
 import java.util.*
 
 
 class MainViewModel : ViewModel() {
+
+    private val _pictureOfDay = MutableLiveData<PictureOfDay>()
+    val pictureOfDay: LiveData<PictureOfDay>
+        get() = _pictureOfDay
+
 
     private val _asteroids = MutableLiveData<List<Asteroid>>()
     val asteroids: LiveData<List<Asteroid>>
@@ -18,6 +30,7 @@ class MainViewModel : ViewModel() {
         get() = _navigateToSelectedAsteroid
 
     init {
+        getPictureOfDay()
         getAsteroidsFeed()
     }
 
@@ -29,29 +42,33 @@ class MainViewModel : ViewModel() {
         _navigateToSelectedAsteroid.value = null
     }
 
+
+    private fun getPictureOfDay() {
+        viewModelScope.launch {
+            try {
+                val picOfDay = NasaApi.apodRetrofitService.getPictureOfTheDay()
+
+                _pictureOfDay.value = picOfDay
+            } catch (e: Exception) {
+                // TODO: Add error handling
+                Timber.e(e)
+            }
+        }
+    }
+
     private fun getAsteroidsFeed(startDate: Date? = null, endDate: Date? = null) {
-        // TODO retrieve data from cache
-        _asteroids.value = listOf(
-            Asteroid(
-                1,
-                "Astro 1",
-                "2022-09-01",
-                21.9,
-                0.2477650126,
-                18.3963939763,
-                0.4309946888,
-                false
-            ),
-            Asteroid(
-                2,
-                "Astro 2",
-                "2022-09-02",
-                40.2,
-                0.1238574,
-                65.261684,
-                0.25154,
-                true
-            )
-        )
+        viewModelScope.launch {
+            try {
+                val response = NasaApi.neoRetrofitService.getAsteroidsFeed()
+                val asteroidArray = parseAsteroidsJsonResult(JSONObject(response))
+
+                _asteroids.value = asteroidArray
+
+                // TODO: Add all data to cache
+            } catch (e: Exception) {
+                // TODO: Add error handling
+                Timber.e(e)
+            }
+        }
     }
 }
