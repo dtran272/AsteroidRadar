@@ -12,8 +12,6 @@ import com.udacity.asteroidradar.database.AsteroidDatabase
 import com.udacity.asteroidradar.repository.AsteroidsRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
-
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidsRepository = AsteroidsRepository(AsteroidDatabase.getInstance(application))
@@ -60,7 +58,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun getAsteroidsFeed(startDate: Date? = null, endDate: Date? = null) {
+    private fun getAsteroidsFeed() {
         viewModelScope.launch {
             asteroidsRepository.refreshFeed()
         }
