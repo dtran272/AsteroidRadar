@@ -1,6 +1,8 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +15,13 @@ import com.udacity.asteroidradar.repository.AsteroidsRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+enum class FeedFilterType {
+    ALL,
+    WEEKLY,
+    TODAY
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidsRepository = AsteroidsRepository(AsteroidDatabase.getInstance(application))
 
@@ -20,7 +29,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val pictureOfDay: LiveData<PictureOfDay>
         get() = _pictureOfDay
 
-    val asteroids = asteroidsRepository.asteroids
+    private val _asteroids = MutableLiveData<List<Asteroid>>()
+    val asteroids: LiveData<List<Asteroid>>
+        get() = _asteroids
 
     private val _navigateToSelectedAsteroid = MutableLiveData<Asteroid>()
     val navigateToSelectedAsteroid: LiveData<Asteroid>
@@ -28,7 +39,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         getPictureOfDay()
-        getAsteroidsFeed()
+        getWeeklyAsteroids()
     }
 
     fun displayAsteroidDetails(asteroid: Asteroid) {
@@ -39,6 +50,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _navigateToSelectedAsteroid.value = null
     }
 
+    fun filterFeed(feedFilterType: FeedFilterType): Boolean {
+        when (feedFilterType) {
+            FeedFilterType.TODAY -> {
+                viewModelScope.launch {
+                    _asteroids.value = asteroidsRepository.getTodayFeed()
+                }
+            }
+            FeedFilterType.WEEKLY -> {
+                viewModelScope.launch {
+                    _asteroids.value = asteroidsRepository.getWeeklyFeed()
+                }
+            }
+            FeedFilterType.ALL -> {
+                viewModelScope.launch {
+                    _asteroids.value = asteroidsRepository.getAllFeed()
+                }
+            }
+        }
+
+        return true
+    }
 
     private fun getPictureOfDay() {
         viewModelScope.launch {
@@ -58,9 +90,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun getAsteroidsFeed() {
+    private fun getWeeklyAsteroids() {
         viewModelScope.launch {
             asteroidsRepository.refreshFeed()
+            _asteroids.value = asteroidsRepository.getWeeklyFeed()
         }
     }
 }

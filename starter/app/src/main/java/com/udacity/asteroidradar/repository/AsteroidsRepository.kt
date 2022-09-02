@@ -2,8 +2,6 @@ package com.udacity.asteroidradar.repository
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
@@ -24,17 +22,38 @@ import java.time.format.DateTimeFormatter
  */
 class AsteroidsRepository(private val database: AsteroidDatabase) {
 
-    /**
-     * A feed of asteroids data
-     */
-    val asteroids: LiveData<List<Asteroid>> = Transformations.map(database.asteroidDao.getFeed()) {
-        it.asDomainModel()
+    suspend fun getAllFeed(): List<Asteroid> {
+        return withContext(Dispatchers.IO) {
+            val feed = database.asteroidDao.getAllFeed()
+
+            feed.asDomainModel()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getWeeklyFeed(): List<Asteroid> {
+        return withContext(Dispatchers.IO) {
+            val startDate = getFormattedDate()
+            val endDate = getFormattedDate(7)
+            val feed = database.asteroidDao.getFeedByDateRange(startDate, endDate)
+
+            feed.asDomainModel()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getTodayFeed(): List<Asteroid> {
+        return withContext(Dispatchers.IO) {
+            val feed = database.asteroidDao.getFeedByDate(getFormattedDate())
+
+            feed.asDomainModel()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun deleteOldData() {
         withContext(Dispatchers.IO) {
-            database.asteroidDao.deleteByDate(getFormattedCurrentDate())
+            database.asteroidDao.deleteByDate(getFormattedDate())
         }
     }
 
@@ -47,7 +66,7 @@ class AsteroidsRepository(private val database: AsteroidDatabase) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun refreshTodayFeed() {
-        fetchAsteroidFeed(getFormattedCurrentDate())
+        fetchAsteroidFeed(getFormattedDate())
     }
 
     private suspend fun fetchAsteroidFeed(endDateQuery: String? = null) {
@@ -66,9 +85,9 @@ class AsteroidsRepository(private val database: AsteroidDatabase) {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun getFormattedCurrentDate(): String {
-        val currentDate = LocalDate.now()
+    private fun getFormattedDate(daysFromCurrentDate: Long = 0): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        return currentDate.format(formatter)
+
+        return LocalDate.now().plusDays(daysFromCurrentDate).format(formatter)
     }
 }

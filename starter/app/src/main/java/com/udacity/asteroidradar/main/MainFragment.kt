@@ -1,7 +1,9 @@
 package com.udacity.asteroidradar.main
 
+import android.os.Build
 import android.os.Bundle
 import android.view.*
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -9,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
+@RequiresApi(Build.VERSION_CODES.O)
 class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by lazy {
@@ -41,7 +44,13 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return true
+        val feedFilterType = when (item.title) {
+            getString(R.string.today_asteroids) -> FeedFilterType.TODAY
+            getString(R.string.next_week_asteroids) -> FeedFilterType.WEEKLY
+            else -> FeedFilterType.ALL
+        }
+
+        return viewModel.filterFeed(feedFilterType) || super.onOptionsItemSelected(item)
     }
 
     private fun setupViewModelObservers() {
