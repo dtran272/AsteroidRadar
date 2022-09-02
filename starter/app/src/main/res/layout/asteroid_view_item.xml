@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.udacity.asteroidradar.Asteroid" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/codeName"
+            style="@style/AsteroidListItemText"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:contentDescription="@{@string/code_name_content_description_format(viewModel.codename)}"
+            android:text="@{viewModel.codename}"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Astro boy 420"
+            tools:textColor="?colorPrimaryDark" />
+
+        <TextView
+            android:id="@+id/closeApproachDate"
+            style="@style/AsteroidListItemText"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:contentDescription="@{@string/close_approach_date_content_description_format(viewModel.closeApproachDate)}"
+            android:text="@{viewModel.closeApproachDate}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/codeName"
+            tools:text="2022-09-11"
+            tools:textColor="?colorPrimaryDark" />
+
+        <ImageView
+            android:id="@+id/isHazardousIcon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="@dimen/normal_spacing"
+            app:layout_constraintBottom_toBottomOf="@id/closeApproachDate"
+            app:layout_constraintDimensionRatio="3:3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@id/codeName"
+            app:layout_constraintTop_toTopOf="parent"
+            app:statusIcon="@{viewModel.potentiallyHazardous}"
+            tools:srcCompat="@drawable/ic_status_potentially_hazardous" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
