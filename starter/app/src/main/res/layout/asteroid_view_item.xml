@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/codeName"
-            style="@style/AsteroidNameText"
+            style="@style/LabelText"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:contentDescription="@{@string/code_name_content_description_format(viewModel.codename)}"
@@ -28,7 +28,7 @@
 
         <TextView
             android:id="@+id/closeApproachDate"
-            style="@style/AsteroidDateText"
+            style="@style/SimpleText"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:contentDescription="@{@string/close_approach_date_content_description_format(viewModel.closeApproachDate)}"

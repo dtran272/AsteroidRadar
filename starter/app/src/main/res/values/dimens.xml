@@ -2,4 +2,6 @@
 <resources>
     <dimen name="normal_spacing">6dp</dimen>
     <dimen name="small_spacing">3dp</dimen>
+    <dimen name="large_spacing">9dp</dimen>
+    <dimen name="x_large_spacing">12dp</dimen>
 </resources>
